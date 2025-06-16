@@ -3,14 +3,14 @@
     public abstract class Person
     {
         private int _id;
-        private int _cedula;
+        private int _document;
         private string _firstName;
         private string _lastName;
         private string _middleName;
         private int _age;
 
         public int Id => _id;
-        public int Cedula => _cedula;
+        public int Document => _document;
         public string FirstName => _firstName;
         public string LastName => _lastName;
         public string MiddleName => _middleName;
@@ -18,9 +18,9 @@
 
         protected Person() { }
 
-        protected Person(int cedula, string firstName, string lastName, string middleName, int age)
+        protected Person(int document, string firstName, string lastName, string middleName, int age)
         {
-            _cedula = cedula;
+            _document = document;
             _firstName = firstName;
             _lastName = lastName;
             _middleName = middleName;

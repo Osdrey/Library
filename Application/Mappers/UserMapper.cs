@@ -9,7 +9,7 @@ namespace Library.Application.Mappers
         {
             return new UserDTO
             {
-                Cedula = user.Cedula,
+                Document = user.Document,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 MiddleName = user.MiddleName,
@@ -27,7 +27,7 @@ namespace Library.Application.Mappers
         public static User ToEntity(UserDTO dto)
         {
             return new User(
-                cedula: dto.Cedula,
+                document: dto.Document,
                 firstName: dto.FirstName,
                 lastName: dto.LastName,
                 middleName: dto.MiddleName,
