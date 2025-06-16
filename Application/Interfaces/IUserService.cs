@@ -2,9 +2,11 @@
 {
     internal interface IUserService
     {
+        void SearchAllUsers();
         void SearchUser();
         void CreateUser();
         void UpdateUser();
-        void DeleteUser();
+        void ReactivateUser();
+        void DeactivateUser();
     }
 }

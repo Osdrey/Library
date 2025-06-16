@@ -26,7 +26,7 @@ namespace Library.Domain.Entities
         internal IReadOnlyCollection<Loan> Loans => _loans.AsReadOnly();
 
         public User ( 
-            int cedula,
+            int document,
             string firstName,
             string lastName,
             string middleName,
@@ -38,7 +38,7 @@ namespace Library.Domain.Entities
             UserRole userRole,
             int arrears,
             bool isActive
-        ) : base(cedula, firstName, lastName, middleName, age)
+        ) : base(document, firstName, lastName, middleName, age)
         {
             _email = email;
             _userName = userName;
