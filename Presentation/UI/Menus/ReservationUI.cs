@@ -16,9 +16,10 @@ namespace Library.Presentation.UI.Menus
             bool flagMenu = true;
             while (flagMenu)
             {
-                Console.WriteLine(
-                    "Bienvenido al gestor de reservas.\n" +
-                    "¿Qué acción vas a realizar? Ingresa una de las opciones disponibles:");
+                Console.WriteLine(  "╔══════════════════════════════╗\n" +
+                                    "║      GESTOR DE RESERVAS      ║\n" +
+                                    "╚══════════════════════════════╝\n" +
+                "\n¿Qué acción vas a realizar? Ingresa una de las opciones disponibles:\n");
                 Console.WriteLine(
                     "1. Crear reserva\n" +
                     "2. Buscar reserva\n" +
@@ -27,7 +28,7 @@ namespace Library.Presentation.UI.Menus
                     "5. Aceptar reserva\n" +
                     "6. Rechazar reserva\n" +
                     "9. Volver al menú anterior\n" +
-                    "0. Salir");
+                    "0. Salir\n");
 
                 var input = Console.ReadLine();
                 Console.Clear();
@@ -54,6 +55,8 @@ namespace Library.Presentation.UI.Menus
                         break;
                     case "9":
                         Console.WriteLine("Regresando al menú anterior...");
+                        Thread.Sleep(1000);
+                        Console.Clear();
                         flagMenu = false;
                         break;
                     case "0":
