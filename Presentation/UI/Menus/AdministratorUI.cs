@@ -1,4 +1,6 @@
 ﻿using Library.Application.DTOs;
+using Library.Application.Interfaces;
+using Library.Presentation.UI.Inputs;
 
 namespace Library.Presentation.UI.Menus
 {
@@ -8,13 +10,17 @@ namespace Library.Presentation.UI.Menus
         private readonly LoanUI _loanUI;
         private readonly ReservationUI _reservationUI;
         private readonly UserUI _userUI;
+        private readonly IAuthService _authService;
+        private readonly UserDTO _loggedInUser;
 
-        public AdministratorUI(MaterialUI materialUI, LoanUI loanUI, ReservationUI reservationUI, UserUI userUI)
+        public AdministratorUI(MaterialUI materialUI, LoanUI loanUI, ReservationUI reservationUI, UserUI userUI,IAuthService authService, UserDTO loggedInUser)
         {
             _materialUI = materialUI;
             _loanUI = loanUI;
             _reservationUI = reservationUI;
             _userUI = userUI;
+            _authService = authService;
+            _loggedInUser = loggedInUser;
         }
 
         public void ShowMenu(UserDTO userDTO)
@@ -24,14 +30,15 @@ namespace Library.Presentation.UI.Menus
             {
                 Console.WriteLine(
                     $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n" +
-                    "¿En que podemos ayudarte? Elige una de las opciones disponibles:");
+                    "\n¿En que podemos ayudarte? Elige una de las opciones disponibles:\n");
                 Console.WriteLine(
                     "1. Gestionar materiales\n" +
                     "2. Gestionar préstamos\n" +
                     "3. Gestionar reservas\n" +
                     "4. Gestionar usuarios\n" +
-                    "9. Volver al menú anterior\n" +
-                    "0. Salir");
+                    "5. Cambiar contraseña\n" +
+                    "9. Cerrar sesión\n" +
+                    "0. Salir\n");
 
                 var input = Console.ReadLine();
                 Console.Clear();
@@ -50,8 +57,14 @@ namespace Library.Presentation.UI.Menus
                     case "4":
                         _userUI.ShowMenu();
                         break;
+                    case "5":
+                        var (current, newPass) = AuthInput.PasswordChange();
+                        _authService.ChangePassword(_loggedInUser, current, newPass);
+                        break;
                     case "9":
-                        Console.WriteLine("Regresando al menu anterior...");
+                        Console.WriteLine("Cerrando sesión...");
+                        Thread.Sleep(1000);
+                        Console.Clear();
                         flagMenu = false;
                         break;
                     case "0":
