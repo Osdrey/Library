@@ -6,7 +6,8 @@ namespace Library.Presentation.UI.Printers
     {
         public static void Print(BookDTO book)
         {
-            Console.WriteLine("\n----- Detalles del Libro -----\n");
+            Console.WriteLine("\n══════════════════════════════════════════════════\n");
+            Console.WriteLine($"Tipo material: Libro");
             Console.WriteLine($"ID del material: {book.MaterialId}");
             Console.WriteLine($"Título: {book.Title}");
             Console.WriteLine($"Autor: {book.Author}");
@@ -17,5 +18,4 @@ namespace Library.Presentation.UI.Printers
             Console.WriteLine($"Número de páginas: {book.Pages}");
         }
     }
-
 }

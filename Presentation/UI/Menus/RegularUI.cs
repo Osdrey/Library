@@ -30,12 +30,13 @@ namespace Library.Presentation.UI.Menus
                     "\n¿En que podemos ayudarte? Elige una de las opciones disponibles:\n");
                 Console.WriteLine(
                     "1. Consultar materiales disponibles\n" +
-                    "2. Reservar material\n" +
-                    "3. Ver tus reservas\n" +
-                    "4. Extender reserva\n" +
-                    "5. Ver tus préstamos\n" +
-                    "6. Renovar préstamo\n" +
-                    "7. Cambiar contraseña\n" +
+                    "2. Filtrar materiales (Titulo, Autor, Año)\n" +
+                    "3. Reservar material\n" +
+                    "4. Ver tus reservas\n" +
+                    "5. Extender reserva\n" +
+                    "6. Ver tus préstamos\n" +
+                    "7. Renovar préstamo\n" +
+                    "8. Cambiar contraseña\n" +
                     "9. Cerrar sesión\n" +
                     "0. Salir\n");
 
@@ -45,24 +46,27 @@ namespace Library.Presentation.UI.Menus
                 switch (input)
                 {
                     case "1":
-                        _materialService.ViewAvaraibleMaterials();
+                        _materialService.ViewAvailableMaterials();
                         break;
                     case "2":
-                        _reservationService.CreateReservation();
+                        _materialService.SearchAllMaterials();
                         break;
                     case "3":
-                        _reservationService.SearchReservation();
+                        _reservationService.CreateReservation();
                         break;
                     case "4":
-                        _reservationService.ExtendReservation();
+                        _reservationService.SearchReservation();
                         break;
                     case "5":
-                        _loanService.SearchLoan();
+                        _reservationService.ExtendReservation();
                         break;
                     case "6":
-                        _loanService.ExtendLoan();
+                        _loanService.SearchLoan();
                         break;
                     case "7":
+                        _loanService.ExtendLoan();
+                        break;
+                    case "8":
                         var (current, newPass) = AuthInput.PasswordChange();
                         _authService.ChangePassword(_loggedInUser, current, newPass);
                         break;
