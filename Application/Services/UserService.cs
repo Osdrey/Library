@@ -25,13 +25,13 @@ namespace Library.Application.Services
                 throw new UserException.UserListNotFoundException();
             }
 
-            Console.WriteLine("\nLista de usuarios activos:\n");
+            Console.WriteLine("\nLista de usuarios activos:");
 
             foreach (var user in users)
             {
                 UserPrinter.Print(user);
             }
-            Console.WriteLine("Presiona una tecla para continuar...");
+            Console.WriteLine("\nPresiona una tecla para regresar al menú...");
             Console.ReadKey();
         }
 

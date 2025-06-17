@@ -54,7 +54,33 @@ namespace Library.Presentation.Helpers
                     PrintException("Error de conexión", ex);
                     break;
                 default:
-                    PrintException("Error de conexión", ex);
+                    PrintException("Error inesperado", ex);
+                    break;
+            }
+        }
+
+        public static void MaterialHandle(Exception ex)
+        {
+            switch (ex)
+            {
+                case MaterialDAOException.MaterialInsertException:
+                case MaterialDAOException.MaterialUpdateException:
+                case MaterialDAOException.MaterialDeleteException:
+                case MaterialDAOException.MaterialSearchException:
+                case MaterialDAOException.MaterialListException:
+                case MaterialDAOException.MaterialStatusUpdateException:
+                case MaterialDAOException.MaterialStatusChangeException:
+                case MaterialDAOException.MaterialAvailabilityException:
+                case MaterialDAOException.MaterialTypeUnknownException:
+                case MaterialException.MaterialNotFoundException:
+                case MaterialException.MaterialUnavailableException:
+                case MaterialException.MaterialAlreadyExistsException:
+                case MaterialException.InvalidMaterialTopicException:
+                case MaterialException.InvalidMaterialDataException:
+                case MaterialException.MaterialListNotFoundException:
+                case MaterialException.MaterialFilterNotFoundException:
+                default:
+                    PrintException("Error inesperado", ex);
                     break;
             }
         }

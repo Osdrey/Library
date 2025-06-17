@@ -6,7 +6,8 @@ namespace Library.Presentation.UI.Printers
     {
         public static void Print(AudioVisualDTO av)
         {
-            Console.WriteLine("\n----- Detalles del Material Audiovisual -----\n");
+            Console.WriteLine("\n══════════════════════════════════════════════════\n");
+            Console.WriteLine($"Tipo material: Audiovisual");
             Console.WriteLine($"ID del material: {av.MaterialId}");
             Console.WriteLine($"Título: {av.Title}");
             Console.WriteLine($"Autor: {av.Author}");
