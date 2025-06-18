@@ -11,5 +11,6 @@ namespace Library.Infraestructure.Interfaces
         void ReactivateUser(int cedula);
         void DeactivateUser(int cedula);
         void ChangePassword(string username, string newPasswordHash);
+        void UpdateUserArrears(UserDTO user);
     }
 }

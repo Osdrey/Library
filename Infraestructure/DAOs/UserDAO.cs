@@ -1,4 +1,5 @@
 ﻿using Library.Application.DTOs;
+using Library.Application.Exceptions;
 using Library.Domain.Enumerations;
 using Library.Infraestructure.Exceptions;
 using Library.Infraestructure.Interfaces;
@@ -261,6 +262,34 @@ namespace Library.Infraestructure.DAOs
             catch (Exception ex)
             {
                 throw new UserDAOException.PasswordChangeException(ex);
+            }
+        }
+
+        public void UpdateUserArrears(UserDTO user)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    const string query = @"
+                        UPDATE Users
+                        SET Arrears = @arrears,
+                            IsActive = @isActive
+                        WHERE Id = @userId";
+
+                    using (var cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@arrears", user.Arrears);
+                        cmd.Parameters.AddWithValue("@isActive", user.IsActive);
+                        cmd.Parameters.AddWithValue("@userId", user.Id);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new UserDAOException.UserUpdateException(ex);
             }
         }
 

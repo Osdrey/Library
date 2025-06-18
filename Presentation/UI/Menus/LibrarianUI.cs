@@ -10,15 +10,15 @@ namespace Library.Presentation.UI.Menus
         private readonly LoanUI _loanUI;
         private readonly IReservationService _reservationService;
         private readonly IAuthService _authService;
-        private readonly UserDTO _loggedInUser;
+        private readonly UserDTO _loggedUser;
 
-        public LibrarianUI(MaterialUI materialUI, LoanUI loanUI, IReservationService reservationService, IAuthService authService, UserDTO loggedInUser)
+        public LibrarianUI(MaterialUI materialUI, LoanUI loanUI, IReservationService reservationService, IAuthService authService, UserDTO loggedUser)
         {
             _materialUI = materialUI;
             _loanUI = loanUI;
             _reservationService = reservationService;
             _authService = authService;
-            _loggedInUser = loggedInUser;
+            _loggedUser = loggedUser;
         }
 
         public void ShowMenu(UserDTO userDTO)
@@ -48,7 +48,7 @@ namespace Library.Presentation.UI.Menus
                         _materialUI.ShowMenu();
                         break;
                     case "2":
-                        _loanUI.ShowMenu();
+                        _loanUI.ShowMenu(_loggedUser);
                         break;
                     case "3":
                         _reservationService.SearchReservation();
@@ -76,7 +76,7 @@ namespace Library.Presentation.UI.Menus
                         break;
                     case "5":
                         var (current, newPass) = AuthInput.PasswordChange();
-                        _authService.ChangePassword(_loggedInUser, current, newPass);
+                        _authService.ChangePassword(_loggedUser, current, newPass);
                         break;
                     case "9":
                         Console.WriteLine("Cerrando sesión...");

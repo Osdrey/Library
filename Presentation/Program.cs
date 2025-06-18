@@ -34,10 +34,9 @@ namespace Library.Presentation
             IMaterialService materialService = new MaterialService(materialDao);
 
             IReservationDAO reservationDao = new ReservationDAO();
-            IReservationService reservationService = new ReservationService(reservationDao, materialDao);
-
-            ILoanService loanService = new LoanService();
-
+            ILoanDAO loanDao = new LoanDAO();
+            ILoanService loanService = new LoanService(loanDao, reservationDao, userDao, materialDao);
+            IReservationService reservationService = new ReservationService(reservationDao, materialDao, loanService);
 
             var materialUI = new MaterialUI(materialService);
             var loanUI = new LoanUI(loanService);
