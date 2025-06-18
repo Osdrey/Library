@@ -1,4 +1,5 @@
-﻿using Library.Application.Interfaces;
+﻿using Library.Application.DTOs;
+using Library.Application.Interfaces;
 
 namespace Library.Presentation.UI.Menus
 {
@@ -11,21 +12,24 @@ namespace Library.Presentation.UI.Menus
             _loanService = loanService;
         }
 
-        public void ShowMenu()
+        public void ShowMenu(UserDTO loggedUser)
         {
             bool flagMenu = true;
             while (flagMenu)
             {
+                Console.Clear();
                 Console.WriteLine(  "╔════════════════════════════════╗\n" +
                                     "║      GESTOR DE PRÉSTAMOS       ║\n" +
                                     "╚════════════════════════════════╝\n" +
                 "\n¿Qué acción vas a realizar? Ingresa una de las opciones disponibles:\n");
                 Console.WriteLine(
                     "1. Crear préstamo\n" +
-                    "2. Buscar préstamo\n" +
-                    "3. Extender préstamo\n" +
-                    "4. Devolver material\n" +
-                    "5. Cancelar préstamo\n" +
+                    "2. Listar préstamos\n" +
+                    "3. Buscar préstamos de un usuario\n" +
+                    "4. Buscar préstamo\n" +
+                    "5. Extender préstamo\n" +
+                    "6. Devolver material\n" +
+                    "7. Cancelar préstamo\n" +
                     "9. Volver al menú anterior\n" +
                     "0. Salir\n");
 
@@ -35,18 +39,24 @@ namespace Library.Presentation.UI.Menus
                 switch (input)
                 {
                     case "1":
-                        _loanService.CreateLoan();
+                        _loanService.CreateLoanManually(loggedUser);
                         break;
                     case "2":
-                        _loanService.SearchLoan();
+                        _loanService.ListLoan();
                         break;
                     case "3":
-                        _loanService.ExtendLoan();
+                        _loanService.ListUserLoans(loggedUser);
                         break;
                     case "4":
-                        _loanService.ReturnMaterial();
+                        _loanService.SearchLoan();
                         break;
                     case "5":
+                        _loanService.ExtendLoan();
+                        break;
+                    case "6":
+                        _loanService.ReturnMaterial();
+                        break;
+                    case "7":
                         _loanService.CancelLoan();
                         break;
                     case "9":

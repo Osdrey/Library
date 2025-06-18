@@ -8,6 +8,6 @@
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime? ReturnDate { get; set; }
-        public string LoanStatus { get; set; }
+        public int LoanStatus { get; set; }
     }
 }

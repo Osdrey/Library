@@ -10,14 +10,14 @@ namespace Library.Presentation.UI.Menus
         private readonly ILoanService _loanService;
         private readonly IReservationService _reservationService;
         private readonly IAuthService _authService;
-        private readonly UserDTO _loggedInUser;
-        public RegularUI(IMaterialService materialService, ILoanService loanService, IReservationService reservationService, IAuthService authService, UserDTO loggedInUser)
+        private readonly UserDTO _loggedUser;
+        public RegularUI(IMaterialService materialService, ILoanService loanService, IReservationService reservationService, IAuthService authService, UserDTO loggedUser)
         {
             _materialService = materialService;
             _loanService = loanService;
             _reservationService = reservationService;
             _authService = authService;
-            _loggedInUser = loggedInUser;
+            _loggedUser = loggedUser;
         }
 
         public void ShowMenu(UserDTO userDTO)
@@ -27,7 +27,7 @@ namespace Library.Presentation.UI.Menus
             {
                 Console.Clear();
                 Console.WriteLine(
-                    $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n"+
+                    $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n" +
                     "\n¿En que podemos ayudarte? Elige una de las opciones disponibles:\n");
                 Console.WriteLine(
                     "1. Consultar materiales disponibles\n" +
@@ -36,7 +36,7 @@ namespace Library.Presentation.UI.Menus
                     "4. Ver tus reservas\n" +
                     "5. Gestionar reserva\n" +
                     "6. Ver tus préstamos\n" +
-                    "7. Renovar préstamo\n" +
+                    "7. Gestionar préstamo\n" +
                     "8. Cambiar contraseña\n" +
                     "9. Cerrar sesión\n" +
                     "0. Salir\n");
@@ -53,10 +53,10 @@ namespace Library.Presentation.UI.Menus
                         _materialService.SearchAllMaterials();
                         break;
                     case "3":
-                        _reservationService.CreateReservation(_loggedInUser);
+                        _reservationService.CreateReservation(_loggedUser);
                         break;
                     case "4":
-                        _reservationService.ListUserReservations(_loggedInUser);
+                        _reservationService.ListUserReservations(_loggedUser);
                         break;
                     case "5":
                         Console.WriteLine(
@@ -64,12 +64,12 @@ namespace Library.Presentation.UI.Menus
                             "1. Extender\n" +
                             "2. Cancelar");
 
-                        var option = Console.ReadLine();
-                        if (option == "1")
+                        var optionR = Console.ReadLine();
+                        if (optionR == "1")
                         {
                             _reservationService.ExtendReservation();
                         }
-                        else if (option == "2")
+                        else if (optionR == "2")
                         {
                             _reservationService.CancelReservation();
                         }
@@ -80,14 +80,32 @@ namespace Library.Presentation.UI.Menus
                         Console.Clear();
                         break;
                     case "6":
-                        _loanService.SearchLoan();
+                        _loanService.ListUserLoans(_loggedUser);
                         break;
                     case "7":
-                        _loanService.ExtendLoan();
+                        Console.WriteLine(
+                            "¿Deseas extender o cancelar un préstamo?\n" +
+                            "1. Extender\n" +
+                            "2. Cancelar");
+
+                        var optionL = Console.ReadLine();
+                        if (optionL == "1")
+                        {
+                            _loanService.ExtendLoan();
+                        }
+                        else if (optionL == "2")
+                        {
+                            _loanService.CancelLoan();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ingresaste una opción inválida. Intenta de nuevo.");
+                        }
+                        Console.Clear();
                         break;
                     case "8":
                         var (current, newPass) = AuthInput.PasswordChange();
-                        _authService.ChangePassword(_loggedInUser, current, newPass);
+                        _authService.ChangePassword(_loggedUser, current, newPass);
                         break;
                     case "9":
                         Console.WriteLine("Cerrando sesión...");

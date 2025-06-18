@@ -6,32 +6,32 @@ using Microsoft.Data.SqlClient;
 
 namespace Library.Infraestructure.DAOs
 {
-    internal class ReservationDAO : IReservationDAO
+    internal class LoanDAO : ILoanDAO
     {
         private static readonly string _connectionString = DbConfig.ConnectionString;
 
-        public List<ReservationDTO> GetAllReservations()
+        public List<LoanDTO> GetAllLoans()
         {
             try
             {
-                var reservations = new List<ReservationDTO>();
+                var loans = new List<LoanDTO>();
 
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Reservations";
+                    string query = "SELECT * FROM Loans";
 
                     using (SqlCommand cmd = new SqlCommand(query, connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            reservations.Add(MapReservation(reader));
+                            loans.Add(MapLoan(reader));
                         }
                     }
                 }
 
-                return reservations;
+                return loans;
             }
             catch (SqlException ex)
             {
@@ -39,53 +39,20 @@ namespace Library.Infraestructure.DAOs
             }
             catch (Exception ex)
             {
-                throw new ReservationDAOException.ReservationListException(ex);
+                throw new LoanDAOException.LoanListException(ex);
             }
         }
 
-        public List<ReservationDTO> GetPendingReservations()
+        public List<LoanDTO> GetLoansByUserId(int userId)
         {
             try
             {
-                var reservations = new List<ReservationDTO>();
-
-                using (SqlConnection connection = new SqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    string query = "SELECT * FROM Reservations WHERE ReservationStatus = 0";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            reservations.Add(MapReservation(reader));
-                        }
-                    }
-                }
-
-                return reservations;
-            }
-            catch (SqlException ex)
-            {
-                throw new DAOException.ConnectionException(ex);
-            }
-            catch (Exception ex)
-            {
-                throw new ReservationDAOException.ReservationListException(ex);
-            }
-        }
-
-        public List<ReservationDTO> GetReservationsByUserId(int userId)
-        {
-            try
-            {
-                var reservations = new List<ReservationDTO>();
+                var loans = new List<LoanDTO>();
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
 
-                    string query = "SELECT * FROM Reservations WHERE UserId = @userId";
+                    string query = "SELECT * FROM Loans WHERE UserId = @userId";
 
                     using (SqlCommand cmd = new SqlCommand(query, connection))
                     {
@@ -95,13 +62,13 @@ namespace Library.Infraestructure.DAOs
                         {
                             while (reader.Read())
                             {
-                                reservations.Add(MapReservation(reader));
+                                loans.Add(MapLoan(reader));
                             }
                         }
                     }
                 }
 
-                return reservations;
+                return loans;
             }
             catch (SqlException ex)
             {
@@ -109,11 +76,11 @@ namespace Library.Infraestructure.DAOs
             }
             catch (Exception ex)
             {
-                throw new ReservationDAOException.ReservationListException(ex);
+                throw new LoanDAOException.LoanListException(ex);
             }
         }
 
-        public ReservationDTO? GetReservationById(int reservationId)
+        public LoanDTO? GetLoanById(int loanId)
         {
             try
             {
@@ -122,17 +89,17 @@ namespace Library.Infraestructure.DAOs
                     connection.Open();
 
                     string query = @"
-                        SELECT * FROM Reservations
-                        WHERE ReservationId = @reservationId";
+                        SELECT * FROM Loans
+                        WHERE LoanId = @loanId";
 
                     using (SqlCommand cmd = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@reservationId", reservationId);
+                        cmd.Parameters.AddWithValue("@loanId", loanId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                return MapReservation(reader);
+                                return MapLoan(reader);
                             }
                         }
                     }
@@ -146,11 +113,11 @@ namespace Library.Infraestructure.DAOs
             }
             catch (Exception ex) when (ex is SqlException)
             {
-                throw new ReservationDAOException.ReservationListException(ex);
+                throw new LoanDAOException.LoanListException(ex);
             }
         }
 
-        public void CreateReservation(ReservationDTO r)
+        public void CreateLoan(LoanDTO loan)
         {
             try
             {
@@ -159,50 +126,23 @@ namespace Library.Infraestructure.DAOs
                     connection.Open();
 
                     string query = @"
-                        INSERT INTO Reservations (UserId, MaterialId, RequestDate, ExpirationDate, ReservationStatus)
-                        VALUES (@userId, @materialId, @requestDate, @expirationDate, @reservationStatus)
-                        SELECT CAST(SCOPE_IDENTITY() AS INT); ";
+                        INSERT INTO Loans (UserId, ReservationId, StartDate, DueDate, ReturnDate, LoanStatus)
+                        VALUES (@userId, @reservationId, @startDate, @dueDate, @returnDate, @loanStatus)";
 
                     using (SqlCommand cmd = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@userId", r.UserId);
-                        cmd.Parameters.AddWithValue("@materialId", r.MaterialId);
-                        cmd.Parameters.AddWithValue("@requestDate", r.RequestDate);
-                        cmd.Parameters.AddWithValue("@expirationDate", r.ExpirationDate);
-                        cmd.Parameters.AddWithValue("@reservationStatus", r.ReservationStatus);
-                        cmd.ExecuteNonQuery();
-                        r.ReservationId = (int)cmd.ExecuteScalar();
-                    }
-                }
-            }
-            catch (SqlException ex)
-            {
-                throw new DAOException.ConnectionException(ex);
-            }
-            catch (Exception ex)
-            {
-                throw new ReservationDAOException.ReservationInsertException(ex);
-            }
-        }
+                        cmd.Parameters.AddWithValue("@reservationId", loan.ReservationId);
+                        cmd.Parameters.AddWithValue("@userId", loan.UserId);
+                        cmd.Parameters.AddWithValue("@startDate", loan.StartDate);
+                        cmd.Parameters.AddWithValue("@dueDate", loan.DueDate);
 
-        public void UpdateReservation(ReservationDTO r)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
-                {
-                    connection.Open();
+                        if (loan.ReturnDate == null)
+                            cmd.Parameters.AddWithValue("@returnDate", DBNull.Value);
+                        else
+                            cmd.Parameters.AddWithValue("@returnDate", loan.ReturnDate);
 
-                    string query = @"
-                        UPDATE Reservations
-                        SET ExpirationDate = @expirationDate,
-                            ReservationStatus = @reservationStatus
-                        WHERE ReservationId = @reservationId";
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@expirationDate", r.ExpirationDate);
-                        cmd.Parameters.AddWithValue("@reservationStatus", r.ReservationStatus);
-                        cmd.Parameters.AddWithValue("@reservationId", r.ReservationId);
+                        cmd.Parameters.AddWithValue("@loanStatus", loan.LoanStatus);
+
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -213,11 +153,49 @@ namespace Library.Infraestructure.DAOs
             }
             catch (Exception ex)
             {
-                throw new ReservationDAOException.ReservationUpdateException(ex);
+                throw new LoanDAOException.LoanInsertException(ex);
             }
         }
 
-        public void DeleteReservation(int reservationId)
+        public void UpdateLoan(LoanDTO loan)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                        UPDATE Loans
+                        SET 
+                            DueDate = @dueDate,
+                            ReturnDate = @returnDate,
+                            LoanStatus = @loanStatus
+                        WHERE LoanId = @loanId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@dueDate", loan.DueDate);
+                        cmd.Parameters.AddWithValue("@returnDate",
+                            loan.ReturnDate == null ? (object)DBNull.Value : loan.ReturnDate);
+                        cmd.Parameters.AddWithValue("@loanStatus", loan.LoanStatus);
+                        cmd.Parameters.AddWithValue("@loanId", loan.LoanId);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new DAOException.ConnectionException(ex);
+            }
+            catch (Exception ex)
+            {
+                throw new LoanDAOException.LoanUpdateException(ex);
+            }
+        }
+
+        public void DeleteLoan(int loanId)
         {
             try
             {
@@ -226,11 +204,12 @@ namespace Library.Infraestructure.DAOs
                     connection.Open();
 
                     const string query = @"
-                        DELETE FROM Reservations
-                        WHERE ReservationId = @reservationId";
+                        DELETE FROM Loans
+                        WHERE LoanId = @loanId";
+
                     using (SqlCommand cmd = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@reservationId", reservationId);
+                        cmd.Parameters.AddWithValue("@loanId", loanId);
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -241,20 +220,23 @@ namespace Library.Infraestructure.DAOs
             }
             catch (Exception ex)
             {
-                throw new ReservationDAOException.ReservationDeleteException(ex);
+                throw new LoanDAOException.LoanDeleteException(ex);
             }
         }
 
-        private ReservationDTO MapReservation(SqlDataReader reader)
+        private LoanDTO MapLoan(SqlDataReader reader)
         {
-            return new ReservationDTO
+            return new LoanDTO
             {
+                LoanId = Convert.ToInt32(reader["LoanId"]),
                 ReservationId = Convert.ToInt32(reader["ReservationId"]),
                 UserId = Convert.ToInt32(reader["UserId"]),
-                MaterialId = Convert.ToInt32(reader["MaterialId"]),
-                RequestDate = Convert.ToDateTime(reader["RequestDate"]),
-                ExpirationDate = Convert.ToDateTime(reader["ExpirationDate"]),
-                ReservationStatus = Convert.ToInt32(reader["ReservationStatus"])
+                StartDate = Convert.ToDateTime(reader["StartDate"]),
+                DueDate = Convert.ToDateTime(reader["DueDate"]),
+                ReturnDate = reader["ReturnDate"] == DBNull.Value
+                                ? null
+                                : Convert.ToDateTime(reader["ReturnDate"]),
+                LoanStatus = Convert.ToInt32(reader["LoanStatus"])
             };
         }
     }

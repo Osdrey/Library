@@ -2,7 +2,6 @@
 using Library.Application.Exceptions;
 using Library.Application.Interfaces;
 using Library.Domain.Enumerations;
-using Library.Infraestructure.DAOs;
 using Library.Infraestructure.Interfaces;
 using Library.Presentation.UI.Inputs;
 using Library.Presentation.UI.Printers;
@@ -13,11 +12,13 @@ namespace Library.Application.Services
     {
         private readonly IReservationDAO _reservationDAO;
         private readonly IMaterialDAO _materialDAO;
+        private readonly ILoanService _loanService;
 
-        public ReservationService(IReservationDAO reservationDAO, IMaterialDAO materialDAO)
+        public ReservationService(IReservationDAO reservationDAO, IMaterialDAO materialDAO, ILoanService loanService)
         {
             _reservationDAO = reservationDAO;
             _materialDAO = materialDAO;
+            _loanService = loanService;
         }
 
         public void ListReservation()
@@ -125,7 +126,7 @@ namespace Library.Application.Services
 
             int materialId = ReservationInput.GetMaterialIdFromInput();
             var material = _materialDAO.SearchMaterial(materialId.ToString());
-            if (material.MaterialStatus != MaterialStatus.Available)
+            if (material?.MaterialStatus != MaterialStatus.Available)
             {
                 Console.WriteLine("El material no se encuentra disponible.");
                 Console.WriteLine("\nPresiona una tecla para continuar...");
@@ -249,6 +250,7 @@ namespace Library.Application.Services
 
             reservation.ReservationStatus = (int)ReservationStatus.Accepted;
             _reservationDAO.UpdateReservation(reservation);
+            _loanService.CreateLoanFromReservation(reservation);
             _materialDAO.UpdateMaterialStatus(reservation.MaterialId, MaterialStatus.Loaned);
             Console.WriteLine("Reserva aceptada exitosamente.");
             Console.WriteLine("\nPresiona una tecla para continuar...");

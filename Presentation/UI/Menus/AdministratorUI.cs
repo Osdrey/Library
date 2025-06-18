@@ -50,7 +50,7 @@ namespace Library.Presentation.UI.Menus
                         _materialUI.ShowMenu();
                         break;
                     case "2":
-                        _loanUI.ShowMenu();
+                        _loanUI.ShowMenu(_loggedUser);
                         break;
                     case "3":
                         _reservationUI.ShowMenu(_loggedUser);

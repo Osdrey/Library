@@ -15,7 +15,7 @@ namespace Library.Application.Mappers
                 StartDate = loan.StartDate,
                 DueDate = loan.DueDate,
                 ReturnDate = loan.ReturnDate,
-                LoanStatus = loan.LoanStatus.ToString()
+                LoanStatus = (int)loan.LoanStatus
             };
         }
     }
