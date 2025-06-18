@@ -268,6 +268,7 @@ namespace Library.Infraestructure.DAOs
         {
             return new UserDTO
             {
+                Id = Convert.ToInt32(reader["Id"]), 
                 Document = Convert.ToInt32(reader["document"]),
                 FirstName = reader["firstName"].ToString() ?? "",
                 LastName = reader["lastName"].ToString() ?? "",

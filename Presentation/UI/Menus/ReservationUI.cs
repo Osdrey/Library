@@ -1,4 +1,5 @@
-﻿using Library.Application.Interfaces;
+﻿using Library.Application.DTOs;
+using Library.Application.Interfaces;
 
 namespace Library.Presentation.UI.Menus
 {
@@ -11,11 +12,12 @@ namespace Library.Presentation.UI.Menus
             _reservationService = reservationService;
         }
 
-        public void ShowMenu()
+        public void ShowMenu(UserDTO loggedUser)
         {
             bool flagMenu = true;
             while (flagMenu)
             {
+                Console.Clear();
                 Console.WriteLine(  "╔══════════════════════════════╗\n" +
                                     "║      GESTOR DE RESERVAS      ║\n" +
                                     "╚══════════════════════════════╝\n" +
@@ -24,9 +26,11 @@ namespace Library.Presentation.UI.Menus
                     "1. Crear reserva\n" +
                     "2. Buscar reserva\n" +
                     "3. Extender reserva\n" +
-                    "4. Cancelar reserva\n" +
-                    "5. Aceptar reserva\n" +
+                    "4. Aceptar reserva\n" +
+                    "5. Cancelar reserva\n" +
                     "6. Rechazar reserva\n" +
+                    "7. Listar reservas\n" +
+                    "8. Filtrar reservas\n" +
                     "9. Volver al menú anterior\n" +
                     "0. Salir\n");
 
@@ -36,7 +40,7 @@ namespace Library.Presentation.UI.Menus
                 switch (input)
                 {
                     case "1":
-                        _reservationService.CreateReservation();
+                        _reservationService.CreateReservation(loggedUser);
                         break;
                     case "2":
                         _reservationService.SearchReservation();
@@ -45,13 +49,37 @@ namespace Library.Presentation.UI.Menus
                         _reservationService.ExtendReservation();
                         break;
                     case "4":
-                        _reservationService.CancelReservation();
+                        _reservationService.AcceptReservation();
                         break;
                     case "5":
-                        _reservationService.AcceptReservation();
+                        _reservationService.CancelReservation();
                         break;
                     case "6":
                         _reservationService.RejectReservation();
+                        break;
+                    case "7":
+                        _reservationService.ListReservation();
+                        break;
+                    case "8":
+                        Console.WriteLine(
+                            "¿Deseas buscar por reservas pendientes o por usuario?\n" +
+                            "1. Ver reservas pendientes\n" +
+                            "2. Buscar por usuario");
+
+                        var option = Console.ReadLine();
+                        if (option == "1")
+                        {
+                            _reservationService.ListPendingReservation();
+                        }
+                        else if (option == "2")
+                        {
+                            _reservationService.ListUserReservations(loggedUser);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ingresaste una opción inválida. Intenta de nuevo.");
+                        }
+                        Console.Clear();
                         break;
                     case "9":
                         Console.WriteLine("Regresando al menú anterior...");

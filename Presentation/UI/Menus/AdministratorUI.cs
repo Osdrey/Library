@@ -11,16 +11,16 @@ namespace Library.Presentation.UI.Menus
         private readonly ReservationUI _reservationUI;
         private readonly UserUI _userUI;
         private readonly IAuthService _authService;
-        private readonly UserDTO _loggedInUser;
+        private readonly UserDTO _loggedUser;
 
-        public AdministratorUI(MaterialUI materialUI, LoanUI loanUI, ReservationUI reservationUI, UserUI userUI,IAuthService authService, UserDTO loggedInUser)
+        public AdministratorUI(MaterialUI materialUI, LoanUI loanUI, ReservationUI reservationUI, UserUI userUI,IAuthService authService, UserDTO loggedUser)
         {
             _materialUI = materialUI;
             _loanUI = loanUI;
             _reservationUI = reservationUI;
             _userUI = userUI;
             _authService = authService;
-            _loggedInUser = loggedInUser;
+            _loggedUser = loggedUser;
         }
 
         public void ShowMenu(UserDTO userDTO)
@@ -28,6 +28,7 @@ namespace Library.Presentation.UI.Menus
             bool flagMenu = true;
             while (flagMenu)
             {
+                Console.Clear();
                 Console.WriteLine(
                     $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n" +
                     "\n¿En que podemos ayudarte? Elige una de las opciones disponibles:\n");
@@ -52,14 +53,14 @@ namespace Library.Presentation.UI.Menus
                         _loanUI.ShowMenu();
                         break;
                     case "3":
-                        _reservationUI.ShowMenu();
+                        _reservationUI.ShowMenu(_loggedUser);
                         break;
                     case "4":
                         _userUI.ShowMenu();
                         break;
                     case "5":
                         var (current, newPass) = AuthInput.PasswordChange();
-                        _authService.ChangePassword(_loggedInUser, current, newPass);
+                        _authService.ChangePassword(_loggedUser, current, newPass);
                         break;
                     case "9":
                         Console.WriteLine("Cerrando sesión...");

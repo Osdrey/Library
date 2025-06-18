@@ -25,6 +25,7 @@ namespace Library.Presentation.UI.Menus
             bool flagMenu = true;
             while (flagMenu)
             {
+                Console.Clear();
                 Console.WriteLine(
                     $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n"+
                     "\n¿En que podemos ayudarte? Elige una de las opciones disponibles:\n");
@@ -33,7 +34,7 @@ namespace Library.Presentation.UI.Menus
                     "2. Filtrar materiales (Titulo, Autor, Año)\n" +
                     "3. Reservar material\n" +
                     "4. Ver tus reservas\n" +
-                    "5. Extender reserva\n" +
+                    "5. Gestionar reserva\n" +
                     "6. Ver tus préstamos\n" +
                     "7. Renovar préstamo\n" +
                     "8. Cambiar contraseña\n" +
@@ -52,13 +53,31 @@ namespace Library.Presentation.UI.Menus
                         _materialService.SearchAllMaterials();
                         break;
                     case "3":
-                        _reservationService.CreateReservation();
+                        _reservationService.CreateReservation(_loggedInUser);
                         break;
                     case "4":
-                        _reservationService.SearchReservation();
+                        _reservationService.ListUserReservations(_loggedInUser);
                         break;
                     case "5":
-                        _reservationService.ExtendReservation();
+                        Console.WriteLine(
+                            "¿Deseas extender o cancelar una reserva?\n" +
+                            "1. Extender\n" +
+                            "2. Cancelar");
+
+                        var option = Console.ReadLine();
+                        if (option == "1")
+                        {
+                            _reservationService.ExtendReservation();
+                        }
+                        else if (option == "2")
+                        {
+                            _reservationService.CancelReservation();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ingresaste una opción inválida. Intenta de nuevo.");
+                        }
+                        Console.Clear();
                         break;
                     case "6":
                         _loanService.SearchLoan();

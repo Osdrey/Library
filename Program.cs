@@ -29,9 +29,15 @@ namespace Library.Presentation
             IUserDAO userDao = new UserDAO();
             IAuthService authService = new AuthService(userDao);
             IUserService userService = new UserService(userDao);
-            IMaterialService materialService = new MaterialService();
+
+            IMaterialDAO materialDao = new MaterialDAO();
+            IMaterialService materialService = new MaterialService(materialDao);
+
+            IReservationDAO reservationDao = new ReservationDAO();
+            IReservationService reservationService = new ReservationService(reservationDao, materialDao);
+
             ILoanService loanService = new LoanService();
-            IReservationService reservationService = new ReservationService();
+
 
             var materialUI = new MaterialUI(materialService);
             var loanUI = new LoanUI(loanService);
@@ -85,7 +91,7 @@ namespace Library.Presentation
                             }
                             else
                             {
-                                Console.WriteLine("Inicio de sesión fallido.");
+                                Console.WriteLine("\nInicio de sesión fallido.");
                                 Console.WriteLine("Presiona una tecla para continuar...");
                                 Console.ReadKey();
                             }

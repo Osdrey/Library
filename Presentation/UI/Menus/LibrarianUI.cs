@@ -26,6 +26,7 @@ namespace Library.Presentation.UI.Menus
             bool flagMenu = true;
             while (flagMenu)
             {
+                Console.Clear();
                 Console.WriteLine(
                     $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de préstamos de la universidad\n" +
                     "\n¿En qué podemos ayudarte? Elige una de las opciones disponibles:\n");

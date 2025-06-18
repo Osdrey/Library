@@ -7,6 +7,6 @@
         public int MaterialId { get; set; }
         public DateTime RequestDate { get; set; }
         public DateTime ExpirationDate { get; set; }
-        public string ReservationStatus { get; set; }
+        public int ReservationStatus { get; set; }
     }
 }
