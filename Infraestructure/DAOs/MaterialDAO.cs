@@ -282,7 +282,7 @@ namespace Library.Infraestructure.DAOs
 
                     using (SqlCommand cmd = new SqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@status", status.ToString());
+                        cmd.Parameters.AddWithValue("@status", (int)status);
                         cmd.Parameters.AddWithValue("@materialId", materialId);
                         cmd.ExecuteNonQuery();
                     }

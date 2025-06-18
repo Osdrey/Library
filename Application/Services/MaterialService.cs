@@ -138,7 +138,6 @@ namespace Library.Application.Services
         public void UpdateMaterialStatus(int id, MaterialStatus status)
         {
             _materialDao.UpdateMaterialStatus(id, status);
-            Console.WriteLine($"Estado actualizado a '{status}'.");
         }
 
         public void DeleteMaterial()

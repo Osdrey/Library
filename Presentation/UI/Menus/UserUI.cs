@@ -52,7 +52,7 @@ namespace Library.Presentation.UI.Menus
                             break;
                         case "5":
                             Console.WriteLine(
-                                "¿Deseas aceptar o rechazar la reserva?\n" +
+                                "¿Deseas activar o desactivar el usuario?\n" +
                                 "1. Activar\n" +
                                 "2. Desactivar");
 

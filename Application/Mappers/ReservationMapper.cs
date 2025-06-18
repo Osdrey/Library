@@ -14,7 +14,7 @@ namespace Library.Application.Mappers
                 MaterialId = reservation.Material.MaterialId,
                 RequestDate = reservation.RequestDate,
                 ExpirationDate = reservation.ExpirationDate,
-                ReservationStatus = reservation.ReservationStatus.ToString()
+                ReservationStatus = (int)reservation.ReservationStatus
             };
         }
     }

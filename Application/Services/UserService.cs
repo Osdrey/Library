@@ -37,7 +37,7 @@ namespace Library.Application.Services
 
         public void SearchUser()
         {
-            Console.WriteLine("Ingrese el valor a buscar (cédula, email o username):");
+            Console.WriteLine("Ingrese el valor a buscar (documento, email o username):");
             string input = Console.ReadLine()!;
             var user = _userDao.SearchUser(input);
 
