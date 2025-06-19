@@ -108,7 +108,7 @@ namespace Library.Application.Services
             };
             try
             {
-                _loanDAO.CreateLoan(loan);
+                _loanDAO.InsertLoan(loan);
             }
             catch (Exception ex)
             {
@@ -145,7 +145,7 @@ namespace Library.Application.Services
 
             try
             {
-                _reservationDAO.CreateReservation(reservation);
+                _reservationDAO.InsertReservation(reservation);
             }
             catch (Exception ex)
             {
@@ -166,7 +166,7 @@ namespace Library.Application.Services
 
             try
             {
-                _loanDAO.CreateLoan(loan);
+                _loanDAO.InsertLoan(loan);
                 _materialDAO.UpdateMaterialStatus(reservation.MaterialId, MaterialStatus.Loaned);
                 Console.WriteLine("Préstamo creado exitosamente.");
             }
@@ -225,7 +225,7 @@ namespace Library.Application.Services
         {
             int loanId = LoanInput.GetLoanIdFromInput();
             var loan = _loanDAO.GetLoanById(loanId);
-            var user = _userDAO.SearchUser(loan.UserId.ToString());
+            var user = _userDAO.GetUser(loan.UserId.ToString());
 
             if (loan == null)
             {
@@ -317,7 +317,7 @@ namespace Library.Application.Services
 
         private void ValidateMaterialAvailability(int materialId)
         {
-            var material = _materialDAO.SearchMaterial(materialId.ToString());
+            var material = _materialDAO.GetMaterial(materialId.ToString());
 
             if (material == null)
             {
@@ -350,7 +350,7 @@ namespace Library.Application.Services
                 {
                     loan.LoanStatus = (int)LoanStatus.Overdue;
                     _loanDAO.UpdateLoan(loan);
-                    var user = _userDAO.SearchUser(loan.UserId.ToString());
+                    var user = _userDAO.GetUser(loan.UserId.ToString());
 
                     if (user != null)
                     {

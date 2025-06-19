@@ -1,6 +1,8 @@
 ﻿using Library.Application.DTOs;
+using Library.Application.Mappers;
 using Library.Infraestructure.Exceptions;
 using Library.Infraestructure.Interfaces;
+using Library.Infraestructure.Queries;
 using Library.Infrastructure.Config;
 using Microsoft.Data.SqlClient;
 
@@ -15,22 +17,18 @@ namespace Library.Infraestructure.DAOs
             try
             {
                 var reservations = new List<ReservationDTO>();
-
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Reservations";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.GetAllReservations, connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            reservations.Add(MapReservation(reader));
+                            reservations.Add(ReservationMapper.ReservationDataReader(reader));
                         }
                     }
                 }
-
                 return reservations;
             }
             catch (SqlException ex)
@@ -48,22 +46,18 @@ namespace Library.Infraestructure.DAOs
             try
             {
                 var reservations = new List<ReservationDTO>();
-
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Reservations WHERE ReservationStatus = 0";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.GetPendingReservations, connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            reservations.Add(MapReservation(reader));
+                            reservations.Add(ReservationMapper.ReservationDataReader(reader));
                         }
                     }
                 }
-
                 return reservations;
             }
             catch (SqlException ex)
@@ -84,10 +78,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "SELECT * FROM Reservations WHERE UserId = @userId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.GetReservationsByUserId, connection))
                     {
                         cmd.Parameters.AddWithValue("@userId", userId);
 
@@ -95,12 +86,11 @@ namespace Library.Infraestructure.DAOs
                         {
                             while (reader.Read())
                             {
-                                reservations.Add(MapReservation(reader));
+                                reservations.Add(ReservationMapper.ReservationDataReader(reader));
                             }
                         }
                     }
                 }
-
                 return reservations;
             }
             catch (SqlException ex)
@@ -120,24 +110,18 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        SELECT * FROM Reservations
-                        WHERE ReservationId = @reservationId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.GetReservationById, connection))
                     {
                         cmd.Parameters.AddWithValue("@reservationId", reservationId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                return MapReservation(reader);
+                                return ReservationMapper.ReservationDataReader(reader);
                             }
                         }
                     }
                 }
-
                 return null;
             }
             catch (SqlException ex)
@@ -150,20 +134,14 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public void CreateReservation(ReservationDTO r)
+        public void InsertReservation(ReservationDTO r)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        INSERT INTO Reservations (UserId, MaterialId, RequestDate, ExpirationDate, ReservationStatus)
-                        VALUES (@userId, @materialId, @requestDate, @expirationDate, @reservationStatus)
-                        SELECT CAST(SCOPE_IDENTITY() AS INT); ";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.InsertReservation, connection))
                     {
                         cmd.Parameters.AddWithValue("@userId", r.UserId);
                         cmd.Parameters.AddWithValue("@materialId", r.MaterialId);
@@ -192,13 +170,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        UPDATE Reservations
-                        SET ExpirationDate = @expirationDate,
-                            ReservationStatus = @reservationStatus
-                        WHERE ReservationId = @reservationId";
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.UpdateReservation, connection))
                     {
                         cmd.Parameters.AddWithValue("@expirationDate", r.ExpirationDate);
                         cmd.Parameters.AddWithValue("@reservationStatus", r.ReservationStatus);
@@ -224,11 +196,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    const string query = @"
-                        DELETE FROM Reservations
-                        WHERE ReservationId = @reservationId";
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(ReservationQueries.DeleteReservation, connection))
                     {
                         cmd.Parameters.AddWithValue("@reservationId", reservationId);
                         cmd.ExecuteNonQuery();
@@ -243,19 +211,6 @@ namespace Library.Infraestructure.DAOs
             {
                 throw new ReservationDAOException.ReservationDeleteException(ex);
             }
-        }
-
-        private ReservationDTO MapReservation(SqlDataReader reader)
-        {
-            return new ReservationDTO
-            {
-                ReservationId = Convert.ToInt32(reader["ReservationId"]),
-                UserId = Convert.ToInt32(reader["UserId"]),
-                MaterialId = Convert.ToInt32(reader["MaterialId"]),
-                RequestDate = Convert.ToDateTime(reader["RequestDate"]),
-                ExpirationDate = Convert.ToDateTime(reader["ExpirationDate"]),
-                ReservationStatus = Convert.ToInt32(reader["ReservationStatus"])
-            };
         }
     }
 }

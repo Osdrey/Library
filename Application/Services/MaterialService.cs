@@ -18,7 +18,7 @@ namespace Library.Application.Services
         public void ViewAvailableMaterials()
         {
             Console.Clear();
-            var list = _materialDao.ViewAvailableMaterials();
+            var list = _materialDao.GetAvailableMaterials();
             if (list.Count == 0)
             {
                 throw new MaterialException.MaterialListNotFoundException();
@@ -37,7 +37,7 @@ namespace Library.Application.Services
         public void SearchAllMaterials()
         {
             var filter = MaterialInput.GetMaterialFilter();
-            var list = _materialDao.SearchAllMaterials(filter);
+            var list = _materialDao.GetAllMaterials(filter);
             if (list.Count == 0)
             {
                 throw new MaterialException.MaterialFilterNotFoundException();
@@ -57,7 +57,7 @@ namespace Library.Application.Services
         public void SearchMaterial()
         {
             var id = MaterialInput.GetMaterialId();
-            var material = _materialDao.SearchMaterial(id.ToString());
+            var material = _materialDao.GetMaterial(id.ToString());
             if (material == null)
             {
                 throw new MaterialException.MaterialNotFoundException(id);
@@ -88,14 +88,14 @@ namespace Library.Application.Services
                 case 1:
                     var bookDto = MaterialInput.GetBookFromInput();
                     ValidateMaterial(bookDto);
-                    _materialDao.CreateMaterial(bookDto);
+                    _materialDao.InsertMaterial(bookDto);
                     Console.WriteLine("Libro creado exitosamente.");
                     break;
 
                 case 2:
                     var audiovisualDto = MaterialInput.GetAudioVisualFromInput();
                     ValidateMaterial(audiovisualDto);
-                    _materialDao.CreateMaterial(audiovisualDto);
+                    _materialDao.InsertMaterial(audiovisualDto);
                     Console.WriteLine("Material audiovisual creado exitosamente.");
                     break;
 
@@ -111,7 +111,7 @@ namespace Library.Application.Services
         public void UpdateMaterial()
         {
             int materialId = MaterialInput.GetMaterialId();
-            var material = _materialDao.SearchMaterial(materialId.ToString());
+            var material = _materialDao.GetMaterial(materialId.ToString());
 
             if (material is null)
             {
@@ -143,7 +143,7 @@ namespace Library.Application.Services
         public void DeleteMaterial()
         {
             var id = MaterialInput.GetMaterialId();
-            var material = _materialDao.SearchMaterial(id.ToString());
+            var material = _materialDao.GetMaterial(id.ToString());
 
             if (material is null)
             {

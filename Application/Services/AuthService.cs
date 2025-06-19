@@ -21,7 +21,7 @@ namespace Library.Application.Services
             try
             {
                 var hashedPassword = PasswordHelper.HashPassword(password);
-                var user = _userDao.SearchUser(username);
+                var user = _userDao.GetUser(username);
 
                 if (user is null)
                 {
@@ -51,14 +51,14 @@ namespace Library.Application.Services
         {
             try
             {
-                if (_userDao.SearchUser(user.UserName) is not null)
+                if (_userDao.GetUser(user.UserName) is not null)
                 {
                     Console.WriteLine("Nombre de usuario ya registrado.");
                     return false;
                 }
 
                 user.Password = PasswordHelper.HashPassword(user.Password);
-                _userDao.CreateUser(user);
+                _userDao.InsertUser(user);
                 Console.WriteLine("Usuario registrado correctamente.");
                 Console.WriteLine("Presiona una tecla para continuar...");
                 Console.ReadKey();

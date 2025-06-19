@@ -18,7 +18,7 @@ namespace Library.Application.Services
 
         public void SearchAllUsers()
         {
-            var users = _userDao.SearchAllUsers();
+            var users = _userDao.GetAllUsers();
 
             if (users.Count == 0)
             {
@@ -39,7 +39,7 @@ namespace Library.Application.Services
         {
             Console.WriteLine("Ingrese el valor a buscar (documento, email o username):");
             string input = Console.ReadLine()!;
-            var user = _userDao.SearchUser(input);
+            var user = _userDao.GetUser(input);
 
             if (user is null)
             {
@@ -55,23 +55,23 @@ namespace Library.Application.Services
         {
             var userDto = UserInput.GetUserFromInput();
 
-            if (_userDao.SearchUser(userDto.Document.ToString()) != null)
+            if (_userDao.GetUser(userDto.Document.ToString()) != null)
             {
                 throw new UserException.DocumentAlreadyExistException(userDto.Document.ToString());
             }
 
-            if (_userDao.SearchUser(userDto.Email) != null)
+            if (_userDao.GetUser(userDto.Email) != null)
             {
                 throw new UserException.DuplicateEmailException(userDto.Email);
             }
 
-            if (_userDao.SearchUser(userDto.UserName) != null)
+            if (_userDao.GetUser(userDto.UserName) != null)
             {
                 throw new UserException.UserAlreadyExistsException(userDto.UserName);
             }
 
             userDto.Password = PasswordHelper.HashPassword(userDto.Password);
-            _userDao.CreateUser(userDto);
+            _userDao.InsertUser(userDto);
             Console.WriteLine("\nUsuario creado exitosamente.");
             Console.WriteLine("Presiona una tecla para continuar...");
             Console.ReadKey();
@@ -80,7 +80,7 @@ namespace Library.Application.Services
         public void UpdateUser()
         {
             int document = UserInput.GetDocumentFromInput();
-            var user = _userDao.SearchUser(document.ToString());
+            var user = _userDao.GetUser(document.ToString());
 
             if (user is null)
             {
@@ -108,7 +108,7 @@ namespace Library.Application.Services
         public void ReactivateUser()
         {
             int document = UserInput.GetDocumentFromInput();
-            var user = _userDao.SearchUser(document.ToString());
+            var user = _userDao.GetUser(document.ToString());
 
             if (user is null)
             {
@@ -137,7 +137,7 @@ namespace Library.Application.Services
         public void DeactivateUser()
         {
             int document = UserInput.GetDocumentFromInput();
-            var user = _userDao.SearchUser(document.ToString());
+            var user = _userDao.GetUser(document.ToString());
 
             if (user is null)
             {

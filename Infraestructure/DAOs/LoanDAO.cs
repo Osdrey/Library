@@ -1,6 +1,8 @@
 ﻿using Library.Application.DTOs;
+using Library.Application.Mappers;
 using Library.Infraestructure.Exceptions;
 using Library.Infraestructure.Interfaces;
+using Library.Infraestructure.Queries;
 using Library.Infrastructure.Config;
 using Microsoft.Data.SqlClient;
 
@@ -19,18 +21,15 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Loans";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(LoanQueries.GetAllLoans, connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            loans.Add(MapLoan(reader));
+                            loans.Add(LoanMapper.LoanDataReader(reader));
                         }
                     }
                 }
-
                 return loans;
             }
             catch (SqlException ex)
@@ -51,10 +50,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "SELECT * FROM Loans WHERE UserId = @userId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(LoanQueries.GetLoansByUserId, connection))
                     {
                         cmd.Parameters.AddWithValue("@userId", userId);
 
@@ -62,12 +58,11 @@ namespace Library.Infraestructure.DAOs
                         {
                             while (reader.Read())
                             {
-                                loans.Add(MapLoan(reader));
+                                loans.Add(LoanMapper.LoanDataReader(reader));
                             }
                         }
                     }
                 }
-
                 return loans;
             }
             catch (SqlException ex)
@@ -87,24 +82,18 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        SELECT * FROM Loans
-                        WHERE LoanId = @loanId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(LoanQueries.GetLoanById, connection))
                     {
                         cmd.Parameters.AddWithValue("@loanId", loanId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                return MapLoan(reader);
+                                return LoanMapper.LoanDataReader(reader);
                             }
                         }
                     }
                 }
-
                 return null;
             }
             catch (SqlException ex)
@@ -117,32 +106,28 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public void CreateLoan(LoanDTO loan)
+        public void InsertLoan(LoanDTO loan)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        INSERT INTO Loans (UserId, ReservationId, StartDate, DueDate, ReturnDate, LoanStatus)
-                        VALUES (@userId, @reservationId, @startDate, @dueDate, @returnDate, @loanStatus)";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(LoanQueries.InsertLoan, connection))
                     {
                         cmd.Parameters.AddWithValue("@reservationId", loan.ReservationId);
                         cmd.Parameters.AddWithValue("@userId", loan.UserId);
                         cmd.Parameters.AddWithValue("@startDate", loan.StartDate);
                         cmd.Parameters.AddWithValue("@dueDate", loan.DueDate);
-
                         if (loan.ReturnDate == null)
+                        {
                             cmd.Parameters.AddWithValue("@returnDate", DBNull.Value);
+                        }
                         else
+                        {
                             cmd.Parameters.AddWithValue("@returnDate", loan.ReturnDate);
-
+                        }
                         cmd.Parameters.AddWithValue("@loanStatus", loan.LoanStatus);
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -164,23 +149,13 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        UPDATE Loans
-                        SET 
-                            DueDate = @dueDate,
-                            ReturnDate = @returnDate,
-                            LoanStatus = @loanStatus
-                        WHERE LoanId = @loanId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(LoanQueries.UpdateLoan, connection))
                     {
                         cmd.Parameters.AddWithValue("@dueDate", loan.DueDate);
                         cmd.Parameters.AddWithValue("@returnDate",
                             loan.ReturnDate == null ? (object)DBNull.Value : loan.ReturnDate);
                         cmd.Parameters.AddWithValue("@loanStatus", loan.LoanStatus);
                         cmd.Parameters.AddWithValue("@loanId", loan.LoanId);
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -202,12 +177,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    const string query = @"
-                        DELETE FROM Loans
-                        WHERE LoanId = @loanId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(LoanQueries.DeleteLoan, connection))
                     {
                         cmd.Parameters.AddWithValue("@loanId", loanId);
                         cmd.ExecuteNonQuery();
@@ -222,22 +192,6 @@ namespace Library.Infraestructure.DAOs
             {
                 throw new LoanDAOException.LoanDeleteException(ex);
             }
-        }
-
-        private LoanDTO MapLoan(SqlDataReader reader)
-        {
-            return new LoanDTO
-            {
-                LoanId = Convert.ToInt32(reader["LoanId"]),
-                ReservationId = Convert.ToInt32(reader["ReservationId"]),
-                UserId = Convert.ToInt32(reader["UserId"]),
-                StartDate = Convert.ToDateTime(reader["StartDate"]),
-                DueDate = Convert.ToDateTime(reader["DueDate"]),
-                ReturnDate = reader["ReturnDate"] == DBNull.Value
-                                ? null
-                                : Convert.ToDateTime(reader["ReturnDate"]),
-                LoanStatus = Convert.ToInt32(reader["LoanStatus"])
-            };
         }
     }
 }
