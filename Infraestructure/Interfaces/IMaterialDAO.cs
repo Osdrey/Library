@@ -6,11 +6,11 @@ namespace Library.Infraestructure.Interfaces
 {
     public interface IMaterialDAO
     {
-        List<MaterialDTO> ViewAvailableMaterials();
-        List<MaterialDTO> SearchAllMaterials(string input);
-        MaterialDTO? SearchMaterial(string materialId);
+        List<MaterialDTO> GetAvailableMaterials();
+        List<MaterialDTO> GetAllMaterials(string input);
+        MaterialDTO? GetMaterial(string materialId);
         bool IsMaterialAvailable(int materialId);
-        void CreateMaterial(MaterialDTO material);
+        void InsertMaterial(MaterialDTO material);
         void UpdateMaterial(MaterialDTO material);
         void UpdateMaterialStatus(int materialId, MaterialStatus status);
         void DeleteMaterial(int materialId);

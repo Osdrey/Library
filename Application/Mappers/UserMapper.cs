@@ -1,5 +1,7 @@
 ﻿using Library.Application.DTOs;
 using Library.Domain.Entities;
+using Library.Domain.Enumerations;
+using Microsoft.Data.SqlClient;
 
 namespace Library.Application.Mappers
 {
@@ -40,6 +42,26 @@ namespace Library.Application.Mappers
                 arrears: dto.Arrears,
                 isActive: dto.IsActive
             );
+        }
+
+        public static UserDTO UserDataReader(SqlDataReader reader)
+        {
+            return new UserDTO
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                Document = Convert.ToInt32(reader["document"]),
+                FirstName = reader["firstName"].ToString() ?? "",
+                LastName = reader["lastName"].ToString() ?? "",
+                MiddleName = reader["middleName"].ToString() ?? "",
+                Age = Convert.ToInt32(reader["age"]),
+                Email = reader["email"].ToString() ?? "",
+                UserName = reader["userName"].ToString() ?? "",
+                Password = reader["password"].ToString() ?? "",
+                UserType = Enum.Parse<UserType>(reader["userType"].ToString() ?? "Regular"),
+                UserRole = Enum.Parse<UserRole>(reader["userRole"].ToString() ?? "User"),
+                Arrears = Convert.ToInt32(reader["arrears"]),
+                IsActive = Convert.ToBoolean(reader["isActive"])
+            };
         }
     }
 }

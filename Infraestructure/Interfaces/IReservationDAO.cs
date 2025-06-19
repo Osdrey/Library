@@ -8,7 +8,7 @@ namespace Library.Infraestructure.Interfaces
         List<ReservationDTO> GetPendingReservations();
         List<ReservationDTO> GetReservationsByUserId(int userId);
         ReservationDTO? GetReservationById(int reservationId);
-        void CreateReservation(ReservationDTO reservation);
+        void InsertReservation(ReservationDTO reservation);
         void UpdateReservation(ReservationDTO reservation);
         void DeleteReservation(int reservationId);
     }

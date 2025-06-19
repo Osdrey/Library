@@ -125,7 +125,7 @@ namespace Library.Application.Services
             }
 
             int materialId = ReservationInput.GetMaterialIdFromInput();
-            var material = _materialDAO.SearchMaterial(materialId.ToString());
+            var material = _materialDAO.GetMaterial(materialId.ToString());
             if (material?.MaterialStatus != MaterialStatus.Available)
             {
                 Console.WriteLine("El material no se encuentra disponible.");
@@ -164,7 +164,7 @@ namespace Library.Application.Services
                 ReservationStatus = (int)ReservationStatus.Pending
             };
 
-            _reservationDAO.CreateReservation(reservation);
+            _reservationDAO.InsertReservation(reservation);
             _materialDAO.UpdateMaterialStatus(reservation.MaterialId, MaterialStatus.Reserved);
             Console.WriteLine("Reserva creada exitosamente.");
             Console.WriteLine("\nPresiona una tecla para continuar...");

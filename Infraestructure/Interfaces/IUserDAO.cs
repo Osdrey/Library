@@ -4,9 +4,9 @@ namespace Library.Infraestructure.Interfaces
 {
     public interface IUserDAO
     {
-        List<UserDTO> SearchAllUsers();
-        UserDTO? SearchUser(string input);
-        void CreateUser(UserDTO user);
+        List<UserDTO> GetAllUsers();
+        UserDTO? GetUser(string input);
+        void InsertUser(UserDTO user);
         void UpdateUser(UserDTO user);
         void ReactivateUser(int cedula);
         void DeactivateUser(int cedula);

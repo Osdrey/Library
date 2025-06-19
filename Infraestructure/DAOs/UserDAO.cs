@@ -1,18 +1,19 @@
 ﻿using Library.Application.DTOs;
-using Library.Application.Exceptions;
-using Library.Domain.Enumerations;
+using Library.Application.Mappers;
 using Library.Infraestructure.Exceptions;
 using Library.Infraestructure.Interfaces;
+using Library.Infraestructure.Queries;
 using Library.Infrastructure.Config;
 using Microsoft.Data.SqlClient;
 
 namespace Library.Infraestructure.DAOs
 {
+
     public class UserDAO : IUserDAO
     {
         private static readonly string _connectionString = DbConfig.ConnectionString;
 
-        public List<UserDTO> SearchAllUsers()
+        public List<UserDTO> GetAllUsers()
         {
             try
             {
@@ -21,18 +22,15 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Users WHERE isActive = 1";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.GetAllActiveUsers, connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            users.Add(MapUser(reader));
+                            users.Add(UserMapper.UserDataReader(reader));
                         }
                     }
                 }
-
                 return users;
             }
             catch (SqlException ex)
@@ -45,24 +43,16 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public UserDTO? SearchUser(string input)
+        public UserDTO? GetUser(string input)
         {
             try
             {
                 UserDTO? user = null;
-
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
 
-                    string query = @"
-                    SELECT * FROM Users 
-                    WHERE CAST(Id AS NVARCHAR) = @input OR
-                          CAST(Document AS NVARCHAR) = @input OR
-                          Email = @input OR
-                          UserName = @input";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.GetUserByInput, connection))
                     {
                         cmd.Parameters.AddWithValue("@input", input);
 
@@ -70,12 +60,11 @@ namespace Library.Infraestructure.DAOs
                         {
                             if (reader.Read())
                             {
-                                user = MapUser(reader);
+                                user = UserMapper.UserDataReader(reader);
                             }
                         }
                     }
                 }
-
                 return user;
             }
             catch (SqlException ex)
@@ -88,21 +77,14 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public void CreateUser(UserDTO user)
+        public void InsertUser(UserDTO user)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                    INSERT INTO Users 
-                    (document, firstName, lastName, middleName, age, email, userName, password, userType, userRole, arrears, isActive)
-                    VALUES 
-                    (@document, @firstName, @lastName, @middleName, @age, @email, @userName, @password, @userType, @userRole, @arrears, @isActive);";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.InsertUser, connection))
                     {
                         cmd.Parameters.AddWithValue("@document", user.Document);
                         cmd.Parameters.AddWithValue("@firstName", user.FirstName);
@@ -116,7 +98,6 @@ namespace Library.Infraestructure.DAOs
                         cmd.Parameters.AddWithValue("@userRole", user.UserRole);
                         cmd.Parameters.AddWithValue("@arrears", user.Arrears);
                         cmd.Parameters.AddWithValue("@isActive", user.IsActive);
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -138,23 +119,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                    UPDATE Users SET 
-                        firstName = @firstName,
-                        lastName = @lastName,
-                        middleName = @middleName,
-                        age = @age,
-                        email = @email,
-                        userName = @userName,
-                        password = @password,
-                        userType = @userType,
-                        userRole = @userRole,
-                        arrears = @arrears,
-                        isActive = @isActive
-                    WHERE document = @document";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.UpdateUser, connection))
                     {
                         cmd.Parameters.AddWithValue("@document", user.Document);
                         cmd.Parameters.AddWithValue("@firstName", user.FirstName);
@@ -168,7 +133,6 @@ namespace Library.Infraestructure.DAOs
                         cmd.Parameters.AddWithValue("@userRole", user.UserRole);
                         cmd.Parameters.AddWithValue("@arrears", user.Arrears);
                         cmd.Parameters.AddWithValue("@isActive", user.IsActive);
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -190,10 +154,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "UPDATE Users SET isActive = 1 WHERE document = @document";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.ReactivateUserByDocument, connection))
                     {
                         cmd.Parameters.AddWithValue("@document", document);
                         cmd.ExecuteNonQuery();
@@ -217,10 +178,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "UPDATE Users SET isActive = 0 WHERE document = @document";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.DeactivateUserByDocument, connection))
                     {
                         cmd.Parameters.AddWithValue("@document", document);
                         cmd.ExecuteNonQuery();
@@ -244,10 +202,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "UPDATE Users SET password = @password WHERE userName = @username";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.UpdateUserPassword, connection))
                     {
                         cmd.Parameters.AddWithValue("@password", newPasswordHash);
                         cmd.Parameters.AddWithValue("@username", username);
@@ -272,13 +227,7 @@ namespace Library.Infraestructure.DAOs
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    const string query = @"
-                        UPDATE Users
-                        SET Arrears = @arrears,
-                            IsActive = @isActive
-                        WHERE Id = @userId";
-
-                    using (var cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(UserQueries.UpdateUserArrears, connection))
                     {
                         cmd.Parameters.AddWithValue("@arrears", user.Arrears);
                         cmd.Parameters.AddWithValue("@isActive", user.IsActive);
@@ -292,26 +241,5 @@ namespace Library.Infraestructure.DAOs
                 throw new UserDAOException.UserUpdateException(ex);
             }
         }
-
-        private UserDTO MapUser(SqlDataReader reader)
-        {
-            return new UserDTO
-            {
-                Id = Convert.ToInt32(reader["Id"]), 
-                Document = Convert.ToInt32(reader["document"]),
-                FirstName = reader["firstName"].ToString() ?? "",
-                LastName = reader["lastName"].ToString() ?? "",
-                MiddleName = reader["middleName"].ToString() ?? "",
-                Age = Convert.ToInt32(reader["age"]),
-                Email = reader["email"].ToString() ?? "",
-                UserName = reader["userName"].ToString() ?? "",
-                Password = reader["password"].ToString() ?? "",
-                UserType = Enum.Parse<UserType>(reader["userType"].ToString() ?? "Regular"),
-                UserRole = Enum.Parse<UserRole>(reader["userRole"].ToString() ?? "User"),
-                Arrears = Convert.ToInt32(reader["arrears"]),
-                IsActive = Convert.ToBoolean(reader["isActive"])
-            };
-        }
     }
 }
-

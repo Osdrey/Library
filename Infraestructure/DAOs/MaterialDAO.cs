@@ -1,8 +1,9 @@
 ﻿using Library.Application.DTOs;
+using Library.Application.Mappers;
 using Library.Domain.Enumerations;
-using Library.Domain.Structures;
 using Library.Infraestructure.Exceptions;
 using Library.Infraestructure.Interfaces;
+using Library.Infraestructure.Queries;
 using Library.Infrastructure.Config;
 using Microsoft.Data.SqlClient;
 
@@ -12,30 +13,25 @@ namespace Library.Infraestructure.DAOs
     {
         private static readonly string _connectionString = DbConfig.ConnectionString;
 
-        public List<MaterialDTO> ViewAvailableMaterials()
+        public List<MaterialDTO> GetAvailableMaterials()
         {
             try
             {
                 var materials = new List<MaterialDTO>();
-
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "SELECT * FROM Materials WHERE MaterialStatus = 0";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.GetAvailableMaterials, connection))
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            var material = MapMaterial(reader);
+                            var material = MaterialMapper.MaterialDataReader(reader);
                             if (material != null)
                                 materials.Add(material);
                         }
                     }
                 }
-
                 return materials;
             }
             catch (SqlException ex)
@@ -48,24 +44,15 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public List<MaterialDTO> SearchAllMaterials(string input)
+        public List<MaterialDTO> GetAllMaterials(string input)
         {
             try
             {
                 var materials = new List<MaterialDTO>();
-
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        SELECT * FROM Materials
-                        WHERE 
-                        Title LIKE '%' + @input + '%' OR
-                        Author LIKE '%' + @input + '%' OR
-                        CAST(PublicationYear AS NVARCHAR) LIKE '%' + @input + '%'";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.GetAllMaterials, connection))
                     {
                         cmd.Parameters.AddWithValue("@input", input);
 
@@ -73,12 +60,11 @@ namespace Library.Infraestructure.DAOs
                         {
                             while (reader.Read())
                             {
-                                materials.Add(MapMaterial(reader));
+                                materials.Add(MaterialMapper.MaterialDataReader(reader));
                             }
                         }
                     }
                 }
-
                 return materials;
             }
             catch (SqlException ex)
@@ -91,17 +77,14 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public MaterialDTO? SearchMaterial(string materialId)
+        public MaterialDTO? GetMaterial(string materialId)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "SELECT * FROM Materials WHERE MaterialId = @materialId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.GetMaterial, connection))
                     {
                         cmd.Parameters.AddWithValue("@materialId", materialId);
 
@@ -109,12 +92,11 @@ namespace Library.Infraestructure.DAOs
                         {
                             if (reader.Read())
                             {
-                                return MapMaterial(reader);
+                                return MaterialMapper.MaterialDataReader(reader);
                             }
                         }
                     }
                 }
-
                 return null;
             }
             catch (SqlException ex)
@@ -134,13 +116,9 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "SELECT MaterialStatus FROM Materials WHERE MaterialId = @materialId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.IsMaterialAvailable, connection))
                     {
                         cmd.Parameters.AddWithValue("@materialId", materialId);
-
                         var status = cmd.ExecuteScalar()?.ToString();
                         return status == MaterialStatus.Available.ToString();
                     }
@@ -156,21 +134,14 @@ namespace Library.Infraestructure.DAOs
             }
         }
 
-        public void CreateMaterial(MaterialDTO material)
+        public void InsertMaterial(MaterialDTO material)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        INSERT INTO Materials
-                        (Title, Author, PublicationYear, MaterialStatus, MaterialCondition, MaterialTopic, Pages, Format, Duration, MaterialType)
-                        VALUES
-                        (@Title, @Author, @PublicationYear, @MaterialStatus, @MaterialCondition, @MaterialTopic, @Pages, @Format, @Duration, @MaterialType)";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.InsertMaterial, connection))
                     {
                         cmd.Parameters.AddWithValue("@Title", material.Title);
                         cmd.Parameters.AddWithValue("@Author", material.Author);
@@ -197,7 +168,6 @@ namespace Library.Infraestructure.DAOs
                         {
                             throw new ArgumentException("Tipo de material desconocido.");
                         }
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -219,21 +189,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = @"
-                        UPDATE Materials SET
-                            Title = @Title,
-                            Author = @Author,
-                            PublicationYear = @PublicationYear,
-                            MaterialStatus = @MaterialStatus,
-                            MaterialCondition = @MaterialCondition,
-                            MaterialTopic = @MaterialTopic,
-                            Pages = @Pages,
-                            Format = @Format,
-                            Duration = @Duration
-                        WHERE MaterialId = @MaterialId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.UpdateMaterial, connection))
                     {
                         cmd.Parameters.AddWithValue("@MaterialId", material.MaterialId);
                         cmd.Parameters.AddWithValue("@Title", material.Title);
@@ -242,7 +198,6 @@ namespace Library.Infraestructure.DAOs
                         cmd.Parameters.AddWithValue("@MaterialStatus", (int)material.MaterialStatus);
                         cmd.Parameters.AddWithValue("@MaterialCondition", (int)material.MaterialCondition);
                         cmd.Parameters.AddWithValue("@MaterialTopic", material.MaterialTopic.ToString());
-
                         if (material is BookDTO book)
                         {
                             cmd.Parameters.AddWithValue("@Pages", book.Pages);
@@ -255,7 +210,6 @@ namespace Library.Infraestructure.DAOs
                             cmd.Parameters.AddWithValue("@Format", av.Format);
                             cmd.Parameters.AddWithValue("@Duration", av.Duration);
                         }
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -277,10 +231,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "UPDATE Materials SET MaterialStatus = @status WHERE MaterialId = @materialId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.UpdateMaterialStatus, connection))
                     {
                         cmd.Parameters.AddWithValue("@status", (int)status);
                         cmd.Parameters.AddWithValue("@materialId", materialId);
@@ -305,10 +256,7 @@ namespace Library.Infraestructure.DAOs
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-
-                    string query = "DELETE FROM Materials WHERE MaterialId = @materialId";
-
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    using (SqlCommand cmd = new SqlCommand(MaterialQueries.DeleteMaterial, connection))
                     {
                         cmd.Parameters.AddWithValue("@materialId", materialId);
                         cmd.ExecuteNonQuery();
@@ -322,55 +270,6 @@ namespace Library.Infraestructure.DAOs
             catch (Exception ex)
             {
                 throw new MaterialDAOException.MaterialDeleteException(ex);
-            }
-        }
-
-        private MaterialDTO? MapMaterial(SqlDataReader reader)
-        {
-            string type = reader["MaterialType"].ToString() ?? "";
-
-            var common = new
-            {
-                MaterialId = Convert.ToInt32(reader["MaterialId"]),
-                Title = reader["Title"].ToString() ?? "",
-                Author = reader["Author"].ToString() ?? "",
-                PublicationYear = Convert.ToInt32(reader["PublicationYear"]),
-                MaterialStatus = Enum.Parse<MaterialStatus>(reader["MaterialStatus"].ToString() ?? "Available"),
-                MaterialCondition = Enum.Parse<MaterialCondition>(reader["MaterialCondition"].ToString() ?? "New"),
-                MaterialTopic = MaterialTopic.FromString(reader["MaterialTopic"].ToString() ?? "")
-            };
-
-            switch (type)
-            {
-                case "Book":
-                    return new BookDTO
-                    {
-                        MaterialId = common.MaterialId,
-                        Title = common.Title,
-                        Author = common.Author,
-                        PublicationYear = common.PublicationYear,
-                        MaterialStatus = common.MaterialStatus,
-                        MaterialCondition = common.MaterialCondition,
-                        MaterialTopic = common.MaterialTopic,
-                        Pages = Convert.ToInt32(reader["Pages"])
-                    };
-
-                case "Audiovisual":
-                    return new AudioVisualDTO
-                    {
-                        MaterialId = common.MaterialId,
-                        Title = common.Title,
-                        Author = common.Author,
-                        PublicationYear = common.PublicationYear,
-                        MaterialStatus = common.MaterialStatus,
-                        MaterialCondition = common.MaterialCondition,
-                        MaterialTopic = common.MaterialTopic,
-                        Format = reader["Format"].ToString() ?? "",
-                        Duration = reader["Duration"].ToString() ?? ""
-                    };
-
-                default:
-                    throw new MaterialDAOException.MaterialTypeUnknownException(type, reader["MaterialId"].ToString() ?? "desconocido");
             }
         }
     }

@@ -27,7 +27,7 @@ namespace Library.Presentation.UI.Menus
             {
                 Console.Clear();
                 Console.WriteLine(
-                    $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n" +
+                    $"¡Hola {userDTO.FirstName}! Bienvenido al sistema de prestamos de la universidad\n"+
                     "\n¿En que podemos ayudarte? Elige una de las opciones disponibles:\n");
                 Console.WriteLine(
                     "1. Consultar materiales disponibles\n" +
